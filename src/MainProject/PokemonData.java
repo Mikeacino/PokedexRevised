@@ -1,40 +1,43 @@
 package MainProject;
 
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import javax.sql.rowset.JdbcRowSet;
-import javax.sql.rowset.RowSetProvider;
-//import java.util.Set;
+import java.util.HashMap;
 
 /**
- * Pokemon class meant for use in a pokedex.
+ * PokemonEssentials class meant for use in a pokedex.
  *  Pulls data from a relational database, and contains known data about pokemon. Contains no
- *  Getters as a result. Does not contain all data for a Pokemon, may include more if time allows
+ *  Getters as a result. Does not contain all data for a PokemonEssentials, may include more if time allows
  */
-public class PokemonData {
-
+public class PokemonData implements PokemonEssentials, PokemonDescription {
   private String speciesName;
   private int speciesID;
   private double height;
   private double weight;
   private int[] baseStats = new int[6];
-  private ArrayList<String> abilities = new ArrayList<String>();
-  private ArrayList<String> eggGroups = new ArrayList<String>();
-  private ArrayList<String> types = new ArrayList<String>();
-  private ArrayList<PokemonMove> moves = new ArrayList<PokemonMove>();
+  private ArrayList<Ability> abilities;
+  private ArrayList<String> eggGroups;
+  private ArrayList<String> types;
+  private ArrayList<PokemonMove> moves;
 
   ///////////////////////////////////// Constructor /////////////////////////////////////
   /**
    * Constructor class based on the ID number
    * Fills the pokemon object with the data for that species
+   * @param speciesID
+   * @param speciesName
+   * @param height
+   * @param weight
+   * @param baseStats
    * @param abilities
+   * @param eggGroups
+   * @param types
+   * @param moves
    */
   public PokemonData(int speciesID, String speciesName, double height, double weight,
-      int[] baseStats, ArrayList<String> abilities, ArrayList<String> eggGroups,
+      int[] baseStats, ArrayList<Ability> abilities, ArrayList<String> eggGroups,
       ArrayList<String> types, ArrayList<PokemonMove> moves) {
-    this.speciesName = speciesName;
     this.speciesID = speciesID;
+    this.speciesName = speciesName;
     this.height = height;
     this.weight = weight;
     this.baseStats = baseStats;
@@ -58,7 +61,7 @@ public class PokemonData {
     return baseStats;
   }
 
-  public ArrayList<String> getAbilities() {
+  public ArrayList<Ability> getAbilities() {
     return abilities;
   }
 

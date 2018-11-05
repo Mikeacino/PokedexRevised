@@ -1,4 +1,8 @@
 package MainProject;
+/**
+ *
+ *
+ */
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +16,8 @@ public class Main extends Application {
         //PokemonDatabaseWork.printFullPokemonTable();
         Parent root = FXMLLoader.load(getClass().getResource("pokedexWindow.fxml"));
         primaryStage.setTitle("Pokedex 2.0");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
+        primaryStage.setResizable(false);
     }
 }
