@@ -13,7 +13,7 @@ public class PokemonData implements PokemonEssentials, PokemonDescription {
   private int speciesID;
   private double height;
   private double weight;
-  private int[] baseStats = new int[6];
+  private int[] baseStats;
   private ArrayList<Ability> abilities;
   private ArrayList<String> eggGroups;
   private ArrayList<String> types;

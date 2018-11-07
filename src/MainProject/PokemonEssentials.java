@@ -1,4 +1,7 @@
 package MainProject;
+/**
+ * Interface for Pokemon Data that is used in damage calculations
+ */
 
 import java.util.ArrayList;
 

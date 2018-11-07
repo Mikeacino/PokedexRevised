@@ -3,13 +3,17 @@ package MainProject;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javax.sql.rowset.JdbcRowSet;
 import javax.sql.rowset.RowSetProvider;
 
 public class PokemonDatabaseWork {
   private static final String DATABASE_URL = "jdbc:derby:C:\\Apache\\db-derby-10.14.2.0-bin\\bin\\PokemonDB";
 
+  /**
+   * Prints all data in the rowSet passed to the method.
+   * Will often cause an error after use, but after printing the table.
+   * @param rowBoat - the rowSet to be printed.
+   */
   public static void printFullRowSet(JdbcRowSet rowBoat){
     try (JdbcRowSet rowSet = rowBoat) {
       ResultSetMetaData metaData = rowSet.getMetaData();
@@ -54,22 +58,18 @@ public class PokemonDatabaseWork {
       ArrayList<Ability> abilities = new ArrayList<>();
       ArrayList<String> eggGroups = new ArrayList<>();
       ArrayList<String> pokemonTypes = new ArrayList<>();
-      ArrayList<PokemonMove> moves = null;
+      ArrayList<PokemonMove> moves = new ArrayList<>();
 
       ///////////////////////////////////// pokemon_data /////////////////////////////////////
       rowSet.setUrl(
           DATABASE_URL);                                                                  //Path to PokemonDB database
-      String columnName;
       String commandQuery;//To start, I need to know what PokemonEssentials I need the data for.
 
       if (pokemonObj instanceof String) {                                                           //Directs the command to the pokemon name given by parameter.
-        columnName = "POKEMON_IDENTIFIER";
         commandQuery = "SELECT * FROM pokemon_data where pokemon_identifier = " + pokemonObj;
       } else if (pokemonObj instanceof Integer) {                                                   //Directs the command to the ID number of the pokemon
-        columnName = "POKEMON_ID";
         commandQuery = "SELECT * FROM pokemon_data where pokemon_id = " + pokemonObj;
       } else {                                                                                      //Error handling
-        columnName = "woops!";
         commandQuery = "error";
         System.exit(2);
       }
@@ -127,16 +127,35 @@ public class PokemonDatabaseWork {
         abilities.add(new Ability(rowSet.getInt(2), rowSet.getString(6), rowSet.getString(7)));
       }
 
-      ///////////////////////////////////// pokemon_abilities /////////////////////////////////////
-      String pokemonMoveCommand = "SELECT * FROM pokemon_moves "
-          + "JOIN moves "
-          + "ON pokemon_moves.move_id = moves.move_id "
+      ///////////////////////////////////// Pokemon Moves /////////////////////////////////////
+      String pokemonMoveCommand = "SELECT POKEMON_MOVES.POKEMON_ID, MOVES.MOVE_ID, MOVES.MOVE_IDENTIFIER, TYPES.TYPE_IDENTIFIER, "
+          + "       POKEMON_MOVE_METHOD.MOVE_METHOD_DESCRIPTION, POKEMON_MOVES.MOVE_LEVEL_LEARNED, MOVES.MOVE_POWER, "
+          + "       MOVES.pp, MOVES.ACCURACY, MOVES.PRIORITY, MOVE_TARGETS.TARGET_IDENTIFIER, DAMAGE_CLASS.DAMAGE_CLASS_DESCRIPTION, "
+          + "       MOVES.EFFECT_CHANCE, MOVE_EFFECT_PROSE.EFFECT_DESCRIPTION "
+          + "FROM POKEMON_MOVES "
+          + "JOIN MOVES "
+          + "    ON POKEMON_MOVES.move_id = MOVES.move_id "
+          + "JOIN TYPES "
+          + "    ON MOVES.TYPE_ID = TYPES.TYPE_ID "
+          + "JOIN POKEMON_MOVE_METHOD "
+          + "    ON POKEMON_MOVES.pokemon_move_method_id = POKEMON_MOVE_METHOD.pokemon_move_method_id "
+          + "JOIN DAMAGE_CLASS "
+          + "    ON MOVES.DAMAGE_CLASS_ID = DAMAGE_CLASS.DAMAGE_CLASS_ID "
+          + "JOIN MOVE_EFFECT_PROSE "
+          + "    ON MOVES.EFFECT_ID = MOVE_EFFECT_PROSE.EFFECT_ID "
+          + "JOIN MOVE_TARGETS "
+          + "    ON MOVE_TARGETS.TARGET_ID = MOVES.TARGET_ID "
           + "WHERE pokemon_id = " + speciesID
           + "ORDER BY pokemon_id";
+
       rowSet.setCommand(pokemonMoveCommand); // set query
       rowSet.execute(); // execute query
-      printFullRowSet(rowSet);
-
+      while (rowSet.next()){
+        moves.add(new PokemonMove(rowSet.getInt(2), rowSet.getString(3), rowSet.getString(4),
+            rowSet.getString(5), rowSet.getInt(6), rowSet.getInt(7), rowSet.getInt(8),
+            rowSet.getInt(9), rowSet.getInt(10),rowSet.getString(11), rowSet.getString(12),
+            rowSet.getInt(13), rowSet.getString(14)));
+      }
       newPoke = new PokemonData(speciesID, speciesName, height, weight, baseStats, abilities,
           eggGroups, pokemonTypes, moves);
 
