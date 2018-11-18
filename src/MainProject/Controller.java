@@ -1,8 +1,15 @@
 package MainProject;
+//I swear these are all needed somewhere or other
+import static MainProject.PokemonDatabaseWork.getAlternateFormsList;
+import static MainProject.PokemonDatabaseWork.getFullPokemonList;
 import static MainProject.PokemonDatabaseWork.getSinglePokemonData;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -15,11 +22,12 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 public class Controller {
-  private static int currentID = 1;
+  private int currentPokemonID = 1;
+  private int currentSpeciesID = 1;
 
   //Trying to visually show the various components and their children
   @FXML
@@ -100,15 +108,24 @@ public class Controller {
   private Button btnPrevious;
   @FXML
   private ComboBox<String> comboBoxPokemon;
+  @FXML
+  private VBox vBoxEvolution;
+  @FXML
+  private ComboBox<String> comboBoxForms;
 
   /**
    * This is called when the fxml file is building the scene.
    * A lot of work is done here, i am seeing if i can offload some of it to other methods, but for
-   * now it is a massive cluster-fuck.
+   * now it is a massive cluster-f***. The large slashes are my way of showing where I would usually
+   * separate this into methods. The lower half involves building GUI components directly in the
+   * controller, and will get very cluttered, as such the comments may get sparse.
    */
   public void initialize() {
-    PokemonData newPoke = getSinglePokemonData(currentID);    //Build the Pokemon from the currentID
-    int pokemonID = newPoke.getSpeciesID();                                                         //Species ID
+    PokemonData newPoke = getSinglePokemonData(currentPokemonID);                                   //Build the Pokemon from the currentPokemonID
+    currentSpeciesID = newPoke.getSpeciesID();                                                      //Starts the window at currentSpeciesID (Bulbasaur)
+
+    //////////////////////////////////// Accessing Pokemon Data ////////////////////////////////////
+    int pokemonID = newPoke.getPokemonID();                                                         //Species ID
     String pokemonName = newPoke.getSpeciesName();                                                  //Species Name
     int[] dummyBSTArray = newPoke.getBaseStats();                                                   //Base Stats
     ArrayList types = newPoke.getTypes();                                                           //Types
@@ -116,102 +133,192 @@ public class Controller {
     ArrayList<Ability> dummyAbilityArray = newPoke.getAbilities();                                  //Abilities
     ArrayList<PokemonMove> dummyMoves = newPoke.getMoves();                                         //Moves
 
+    ///////////////////////////////////// comboBoxPokemon /////////////////////////////////////
+    ArrayList<String> dummyPokemonList = getFullPokemonList();                                      //Creates a list of all pokemon species for ComboBox selection
+    ObservableList<String> dummyPokemonFullArrayList= FXCollections.observableArrayList(            //The list has to be an ObservableList
+        dummyPokemonList);
+    comboBoxPokemon.setItems(dummyPokemonFullArrayList);                                            //Set the comboBox to the list
+
+    ////////////////////// Full Pokemon List event, may be modularized later //////////////////////
+    EventHandler<ActionEvent> pokemonCBevent =
+        e -> {
+      System.out.println("The comboBox choice is: " + comboBoxPokemon.getValue().substring(         //Print statements for chasing down an error
+          0, comboBoxPokemon.getValue().indexOf(" ")));
+          currentPokemonID = Integer.parseInt(comboBoxPokemon.getValue().substring(                 //Sets the users ComboBox choice as the current pokemon
+              0, comboBoxPokemon.getValue().indexOf(" ")));
+          initialize();                                                                             //Re-Initializes the window with the new current Pokemon
+        };
+    // Set on action
+    comboBoxPokemon.setOnAction(pokemonCBevent);                                                    //Add the event to be performed on action
+
+    ///////////////////////////////////// ComboBoxForms /////////////////////////////////////
+    ArrayList<String> dummyFormList = getAlternateFormsList();                                      //List of alternate forms, currently bugged
+    ObservableList<String> dummyFormsArrayList= FXCollections.observableArrayList(dummyFormList);
+    comboBoxForms.setItems(null);                                                                   //How do i clear you!?!...Ahem, trying to clear the items from ComboBox, unsuccessful
+    comboBoxForms.setItems(dummyFormsArrayList);                                                    //Set the ComboBox to the list
+
+    //////////////////////// Create Alternate Forms event ////////////////////////                  //Currently bugged, disabled until bug is squashed
+    EventHandler<ActionEvent> event =
+        e -> {
+          //System.out.println(comboBoxForms.getValue());
+          currentPokemonID = 77; //getAlternateFormID(comboBoxForms.getValue());
+          //System.out.println(getAlternateFormID(comboBoxForms.getValue()));
+          initialize();
+        };
+    // Set on action
+    comboBoxForms.setOnAction(event);
+
     ///////////////////////////////////// Images /////////////////////////////////////
-    Image imgNormal = new Image("file:///C:/Users/chris/OneDrive/Pokemon 2018 Test Files/sprites/pokemon/" + pokemonID + ".png");
-    Image imgShiny = new Image("file:///C:/Users/chris/OneDrive/Pokemon 2018 Test Files/sprites/pokemon/shiny/" + pokemonID + ".png");
-    Image imgType1 = new Image("file:///C://Users//chris//OneDrive//Pokemon 2018 Test Files/Pokemon type images/" + types.get(0) + "_serebii.gif");
-    imgNormalSprite.setImage(imgNormal);
-    imgShinySprite.setImage(imgShiny);
-    imgTypeOne.setImage(imgType1);
-    //if (types.size() > 1) {
-      System.out.println("There are two types!");
-      Image imgType2 = new Image("file:///C:/Users/chris/OneDrive/Pokemon 2018 Test Files/PokemonEssentials type images/bug_serebii.gif");
-      imgTypeTwo.setImage(imgType2);
-    //}
+    Image imgNormal = new Image("File:///C://Users//chris//OneDrive//IntelliJ work (2018)//"    //Sprite for Normal Pokemon
+        + "Programs//Pokedex 2.0//src//pokemon//" + pokemonID + ".png");
+    Image imgShiny = new Image("File:///C://Users//chris//OneDrive//IntelliJ work (2018)//"     //Sprite for Shiny Pokemon
+        + "Programs//Pokedex 2.0//src//shiny//" + pokemonID + ".png");
+    Image imgType1 = new Image("File:///C://Users//chris//OneDrive//IntelliJ work (2018)//"     //Sprite for the pokemon's Type, needs to be renamed
+        + "Programs//Pokedex 2.0//src//Pokemon type images//" + types.get(0) + "_serebii.gif");
+    imgNormalSprite.setImage(imgNormal);                                                            //Set the normal ImageView to the Image made here
+    imgShinySprite.setImage(imgShiny);                                                              //Set the shiny ImageView to the Image made here
+    imgTypeOne.setImage(imgType1);                                                                  //Set the first type ImageView to the Image made here
+    if (types.size() > 1) {                                                                         //Only runs if the pokemon has more than one type
+      imgTypeTwo.setVisible(true);                                                                  //Makes the second type image visible
+      Image imgType2 = new Image("file:///C://Users//chris//OneDrive//Pokemon 2018 Test Files/"
+          + "Pokemon type images/" + types.get(1) + "_serebii.gif");
+      imgTypeTwo.setImage(imgType2);                                                                ////Set the second type ImageView to the Image made here
+    } else{                                                                                         //Only runs if the pokemon has one type
+      imgTypeTwo.setVisible(false);                                                                 //Sets the unused image to invisible
+    }
+
     ///////////////////////////////////// Abilities /////////////////////////////////////
-    Font medium = new Font("Arial", 20);
-    Font large = new Font("Arial", 26);
-    VBoxAbilities.getChildren().clear();
-    for (int i = 0; i < dummyAbilityArray.size(); i++){
-      String abilName = dummyAbilityArray.get(i).getAbilityName();
-      Label abilityName = new Label(abilName.substring(0, 1).toUpperCase() + abilName.substring(1));
-      Label abilityDescription = new Label("\t" + dummyAbilityArray.get(i).getAbilityDescription());
-      abilityName.setFont(large);
-      abilityDescription.setFont(medium);
-      VBoxAbilities.getChildren().add(abilityName);
+    VBoxAbilities.setPadding(new Insets(10, 10, 10, 10));                     //Set the ability Padding
+    Font small = new Font("Arial", 20);                                                  //Next three lines are fonts for easy access
+    Font medium = new Font("Arial", 26);
+    Font large = new Font("Arial", 28);
+
+    VBoxAbilities.getChildren().clear();                                                            //Clearing the vBox to get rid of any potential leftovers
+    for (Ability dummyAbility:dummyAbilityArray){                                                   //Loops through every ability and sets them to a nice readable size
+      Label abilityName = new Label(dummyAbility.getAbilityName().substring(
+          0, 1).toUpperCase()
+          + dummyAbility.getAbilityName().substring(1));
+      Label abilityDescription = new Label("\t" + dummyAbility.getAbilityDescription());
+      abilityName.setFont(medium);
+      abilityDescription.setFont(small);
+      VBoxAbilities.getChildren().add(abilityName);                                                 //Add the ability Nodes to the VBox that is part of the scene
       VBoxAbilities.getChildren().add(abilityDescription);
     }
 
-    ///////////////////////////////////// Moves /////////////////////////////////////
-    vBoxMovesLevelUp.getChildren().clear();    //Clear the vBox for moves before building a new one
-    vBoxMovesTM.getChildren().clear();
+    ///////////////////////////////////// Moves /////////////////////////////////////               //Much of this section is loops
+    vBoxMovesLevelUp.getChildren().clear();                                                         //Clear the vBox for moves before building a new one
+    vBoxMovesTM.getChildren().clear();                                                              //I use four VBoxes to separate moves based on how they are learned
     vBoxMovesMoveTutor.getChildren().clear();
     vBoxMovesEgg.getChildren().clear();
 
-    final GridPane layoutLvl = new GridPane();
-    final GridPane layoutTM = new GridPane();
-    final GridPane layoutTutor = new GridPane();
-    final GridPane layoutEgg = new GridPane();
+    GridPane gridPaneHeader = new GridPane();
+    gridPaneHeader.getChildren().clear();
 
-    Label headerLvl = new Label("Level-Up");
-    Label headerTM = new Label("TM/HM");
-    Label headerTutor = new Label("Move Tutor");
-    Label headerEgg = new Label("Egg Moves");
+    final VBox layoutLvl = new VBox();                                                              //Build a GridPane for every type of move
+    final VBox layoutTM = new VBox();
+    final VBox layoutTutor = new VBox();
+    final VBox layoutEgg = new VBox();
 
+    ColumnConstraints columnOne = new ColumnConstraints(200);                                 //Setting the columnConstraints for the gridPanes later
+    gridPaneHeader.getColumnConstraints().add(columnOne);
+
+    ColumnConstraints columnTwo = new ColumnConstraints(70);
+    gridPaneHeader.getColumnConstraints().add(columnTwo);
+
+    ColumnConstraints columnThree = new ColumnConstraints(70);
+    gridPaneHeader.getColumnConstraints().add(columnThree);
+
+    ColumnConstraints columnFour = new ColumnConstraints(60);
+    gridPaneHeader.getColumnConstraints().add(columnFour);
+
+    ColumnConstraints columnFive = new ColumnConstraints(60);
+    gridPaneHeader.getColumnConstraints().add(columnFive);
+
+    ColumnConstraints columnSix= new ColumnConstraints(60);
+    gridPaneHeader.getColumnConstraints().add(columnSix);
+
+    VBox[] gridPaneArray = {layoutLvl, layoutTM, layoutTutor, layoutEgg};                           //Allows me to loop through all four VBoxes
+    for (VBox dummyGridPane:gridPaneArray){                                                         //Loops through all move-GridPanes
+      dummyGridPane.setPadding(new Insets(10, 10, 20, 10));                   //Padding for the GridPanes
+    }
+
+    //Setting various labels and their sizes
+    Label headerLvl = new Label("\tLevel-Up");                                                 //Adds the headers for the various columns. I change these often to make it more readable
+    headerLvl.setFont(large);
+    layoutLvl.getChildren().add(headerLvl);
+
+    Label headerTM = new Label("\tTM/HM");
+    headerTM.setFont(large);
+    layoutTM.getChildren().add(headerTM);
+
+    Label headerTutor = new Label("\tMove Tutor");
+    headerTutor.setFont(large);
+    layoutTutor.getChildren().add(headerTutor);
+
+    Label headerEgg = new Label("\tEgg Moves");
+    headerEgg.setFont(large);
+    layoutEgg.getChildren().add(headerEgg);
+
+    //Generic headers for the move boxes
     Label headerType = new Label("Type");
-    Label headerDmgclass = new Label("DmgType");
+    headerType.setFont(small);
+    gridPaneHeader.add(headerType, 1, 0);
+
+    Label headerDmgclass = new Label("Status");
+    headerDmgclass.setFont(small);
+    gridPaneHeader.add(headerDmgclass, 2, 0);
+
     Label headerPower = new Label("Power");
-    Label headerAcc = new Label("Accuracy");
+    headerPower.setFont(small);
+    gridPaneHeader.add(headerPower, 3, 0);
+
+    Label headerAcc = new Label("Acc.");
+    headerAcc.setFont(small);
+    gridPaneHeader.add(headerAcc, 4, 0);
+
     Label headerPP = new Label("PP");
+    headerPP.setFont(small);
+    gridPaneHeader.add(headerPP, 5, 0);
+
     Label headerPriority = new Label("Priority");
+    headerPriority.setFont(small);
+    gridPaneHeader.add(headerPriority, 6, 0);
 
-    layoutLvl.add(headerLvl, 0, 0);
-    layoutLvl.add(headerDmgclass, 2, 0);
-    layoutLvl.add(headerType, 1, 0);
-    layoutLvl.add(headerPower, 3, 0);
-    layoutLvl.add(headerPP, 4, 0);
-    layoutLvl.add(headerAcc, 5, 0);
-    layoutLvl.add(headerPriority, 6, 0);
+    layoutLvl.getChildren().add(gridPaneHeader);                                                    //Currently only sets these headers to one GridPane, until i decide i like this look
 
-    layoutTM.add(headerTM, 0, 0);
+    for (PokemonMove dmyMove:dummyMoves){                                                           //Loops through all moves for the pokemon. Much of this is in flux right now
+      String power;                                                                                 //Move Power
+      String accuracy;                                                                              //Move Accuracy
+      Label lblMoveIdentifier = new Label(dmyMove.getMoveIdentifier());                             //Move name
 
-    layoutTutor.add(headerTutor, 0, 0);
-
-    layoutEgg.add(headerEgg, 0, 0);
-
-    int rowCount = 1;   //Start at 1 to skip the header
-    for (PokemonMove dmyMove:dummyMoves){       //Builds a grid of all moves dynamically
-      String power = "";
-      String accuracy = "";
-      Label lbl1 = new Label(dmyMove.getMoveIdentifier());                                          //Move Description
       String moveType = dmyMove.getType();                                                          //Move Type
-      ImageView typeImage = new ImageView("file:///C://Users//chris//OneDrive//Pokemon 2018 "
+      ImageView typeImage = new ImageView("file:///C://Users//chris//OneDrive//Pokemon 2018 "   //Image for the type of the move
           + "Test Files/Pokemon type images/" + moveType + "_serebii.gif");
-      String dmgType = dmyMove.getDamageClassDescription();                                         //Damage Class
-      ImageView dmgClass = new ImageView("File:///C://Users//chris//OneDrive//Pokemon 2018 "
-          + "Test Files/move damage class icons/" + dmgType + ".png");
 
-      if (dmyMove.getPower() == -1){                                                                 //Power
+      String dmgType = dmyMove.getDamageClassDescription();                                         //Damage Class
+      ImageView dmgClass = new ImageView("File:///C://Users//chris//OneDrive//IntelliJ work "   //Path should be relative now, and work after submission
+          + "(2018)//Programs//Pokedex 2.0//src//DmgClassIcons//"+ dmgType +".png");
+
+      if (dmyMove.getPower() == -1){                                                                //Power
         power = "-";
       } else{
         power = dmyMove.getPower() + "";
       }
-      Label lbl4 = new Label(power);
+      Label lblPower = new Label(power);
 
-      if (dmyMove.getAccuracy() == -1){                                                             //The data for Acc has negatives when it should be null, so i handle it here
+      if (dmyMove.getAccuracy() == -1){                                                             //The data for Accuracy has negatives when it should be null, so i handle it here
         accuracy = "-";
       } else{
         accuracy = dmyMove.getAccuracy() + "";
       }
-      Label lbl5 = new Label(accuracy);                                                             //Accuracy
+      Label lblAccuracy = new Label(accuracy);                                                      //Accuracy
 
-      Label lbl6 = new Label(dmyMove.getPp() + "");                                            //PP
+      Label lblPP = new Label(dmyMove.getPp() + "");                                           //PP
 
-      Label lbl7 = new Label(dmyMove.getPriority() + "");                                      //Priority
+      Label lblPriority = new Label(dmyMove.getPriority() + "");                               //Priority
 
-      GridPane[] dummyGP = {layoutLvl, layoutTM, layoutTutor, layoutEgg};                           //Makes my code more compact, Places the moves in their proper box
-      int varGP;
-      switch (dmyMove.getMethodLearned()){
+      int varGP;                                                                                    //Integer for easier navigation through GridPanes
+      switch (dmyMove.getMethodLearned()){                                                          //Switch statement chooses which GridPane to add the move
         case "Level-Up":
           varGP = 0;
           break;
@@ -229,43 +336,54 @@ public class Controller {
           break;
       }
 
-      lbl1.setFont(large);                                                                          //Set the font and format for the labels/images
+      lblMoveIdentifier.setFont(medium);                                                            //Sets the font and format for the labels/images
       typeImage.setPreserveRatio(true);
       typeImage.setFitHeight(25);
       dmgClass.setPreserveRatio(true);
       dmgClass.setFitHeight(25);
-      lbl4.setFont(large);
-      lbl5.setFont(large);
+      lblPower.setFont(medium);
+      lblAccuracy.setFont(medium);
+      lblPP.setFont(medium);
+      lblPriority.setFont(medium);
 
-      dummyGP[varGP].add(lbl1, 0, 2*rowCount);                                  //Add the labels and images to the GridPane
-      dummyGP[varGP].add(typeImage, 1, 2*rowCount);
-      dummyGP[varGP].add(dmgClass, 2, 2*rowCount);
-      dummyGP[varGP].add(lbl4, 3, 2*rowCount);
-      dummyGP[varGP].add(lbl5, 4, 2*rowCount);
-      dummyGP[varGP].add(lbl6, 5, 2*rowCount);
-      dummyGP[varGP].add(lbl7, 6, 2*rowCount);
+      GridPane moveData = new GridPane();
 
-      dummyGP[varGP].setHgap(15);                                                                   //Set the height of the GridPane
+      moveData.getColumnConstraints().add(columnOne);                                               //Set the columnConstraints for the columns
+      moveData.getColumnConstraints().add(columnTwo);
+      moveData.getColumnConstraints().add(columnThree);
+      moveData.getColumnConstraints().add(columnFour);
+      moveData.getColumnConstraints().add(columnFive);
+      moveData.getColumnConstraints().add(columnSix);
 
+      moveData.add(lblMoveIdentifier, 0, 0);                                    //Add the data for the moves to the Labels
+      moveData.add(typeImage, 1, 0);
+      moveData.add(dmgClass, 2, 0);
+      moveData.add(lblPower, 3, 0);
+      moveData.add(lblAccuracy, 4, 0);
+      moveData.add(lblPP, 5, 0);
+      moveData.add(lblPriority, 6, 0);
 
+      gridPaneArray[varGP].getChildren().add(moveData);                                             //Add the move Labels to the appropriate GridPane
 
-      Label moveDescription = new Label(dmyMove.getEffectDescription());
-      moveDescription.setFont(medium);
-      dummyGP[varGP].add(moveDescription, 0, 2*rowCount + 1);
-      rowCount++;
+      Label moveDescription = new Label(dmyMove.getEffectDescription());                            //Adds the description as a second row, will be phased out
+      moveDescription.setFont(small);
+      moveDescription.setPadding(new Insets(0, 0, 20, 10));
+      gridPaneArray[varGP].getChildren().add(moveDescription);                                      //Move Descriptions
     }
-    vBoxMovesLevelUp.getChildren().add(layoutLvl);
+    vBoxMovesLevelUp.getChildren().add(layoutLvl);                                                  //Finally add the gridPanes to the parent VBox
     vBoxMovesLevelUp.getChildren().add(layoutTM);
     vBoxMovesLevelUp.getChildren().add(layoutTutor);
     vBoxMovesLevelUp.getChildren().add(layoutEgg);
 
     ///////////////////////////////////// Pokemon Data /////////////////////////////////////
-    lblSpeciesName.setText(pokemonName.substring(0, 1).toUpperCase() + pokemonName.substring(1));
+    lblSpeciesName.setText(pokemonName.substring(0, 1).toUpperCase() +                        //Sets various labels
+        pokemonName.substring(1));
     lblSpeciesNumber.setText("#"+Integer.toString(pokemonID));
     lblHeight.setText(Double.toString(newPoke.getHeight()/10) + "m");
     lblWeight.setText(Double.toString(newPoke.getWeight()/10) + "kg");
 
     ///////////////////////////////////// Base Stats /////////////////////////////////////
+    gridPaneBST.setPadding(new Insets(10, 10, 10, 10));                       //Sets the Labels for the Base Stats GridPane
     lblBaseHP.setText(Integer.toString(dummyBSTArray[0]));
     lblBaseAttack.setText(Integer.toString(dummyBSTArray[1]));
     lblBaseDefense.setText(Integer.toString(dummyBSTArray[2]));
@@ -274,10 +392,10 @@ public class Controller {
     lblBaseSpeed.setText(Integer.toString(dummyBSTArray[5]));
 
     ///////////////////////////////////// Buttons /////////////////////////////////////
-    if (currentID == 1){
+    if (currentPokemonID == 1){                                                                     //Disables next button when there are none left, Disables previous when on the first Pokemon
       btnPrevious.setDisable(true);
       btnNext.setDisable(false);
-    } else if (currentID == 802){
+    } else if (currentPokemonID == 802){
       btnPrevious.setDisable(false);
       btnNext.setDisable(true);
     } else{
@@ -286,19 +404,25 @@ public class Controller {
     }
 
     ///////////////////////////////////// Rectangles /////////////////////////////////////
-    Rectangle[] dummy = {rectHP, rectAtt, rectDef, rectSpAtt, rectSpDef, rectSpeed};
+    Rectangle[] dummy = {rectHP, rectAtt, rectDef, rectSpAtt, rectSpDef, rectSpeed};                //Scales the rectangles based on the Base Stat in question
     for (int i = 0; i < 6; i++){
       dummy[i].setWidth(2*dummyBSTArray[i]);
-      dummy[i].setFill(Color.rgb(255 - dummyBSTArray[i], 0,255 - dummyBSTArray[i]));
+      dummy[i].setFill(Color.rgb(255 - dummyBSTArray[i], 0,                              //Changes the color of the rectangles based Stats, may be replaced with a tiered color system
+          255 - dummyBSTArray[i]));
     }
 
     ///////////////////////////////////// Egg Groups /////////////////////////////////////
-    lblEggGroupOne.setText(dummyEggGroupArray.get(0));
-    if (dummyEggGroupArray.size() >1){
+    lblEggGroupOne.setText(dummyEggGroupArray.get(0));                                              //More Label work
+    if (dummyEggGroupArray.size() >1){                                                              //Same as types, dealing with Pokemon who have more than one Egg Group
       lblEggGroupTwo.setText(dummyEggGroupArray.get(1));
     } else{
       lblEggGroupTwo.setText("");
     }
+
+    ///////////////////////////////////// ComboBox Forms /////////////////////////////////////
+    comboBoxForms.setDisable(true);                                                                 //Slashing out the Alternate Forms box
+    System.out.println("The currentPokemonID is: " + currentPokemonID + "\nThe currentSpeciesID "   //Error testing statement
+        + "is: " + currentSpeciesID);
   }
 
   /**
@@ -307,7 +431,8 @@ public class Controller {
    */
   @FXML
   private void handlePreviousButtonAction(ActionEvent event){
-    currentID--;
+    currentPokemonID = currentSpeciesID-1;
+    currentSpeciesID--;
     initialize();
   }
 
@@ -319,7 +444,7 @@ public class Controller {
   private void handleRandomButtonAction(ActionEvent event) {
     // Button was clicked, do something…
     Random rand = new Random();
-    currentID = rand.nextInt(801)+1;
+    currentPokemonID = rand.nextInt(801)+1;
     initialize();
   }
 
@@ -329,7 +454,8 @@ public class Controller {
    */
   @FXML
   private void handleNextButtonAction(ActionEvent event){
-    currentID++;
+    currentPokemonID = currentSpeciesID+1;
+    currentSpeciesID++;
     initialize();
   }
 }

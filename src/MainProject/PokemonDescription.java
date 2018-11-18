@@ -1,6 +1,6 @@
 package MainProject;
 /**
- * interface for data about a Pokemon that may not be relevant for battle calculations
+ * interface for data about a Pokemon that may not be relevant for battle calculations.
  */
 
 import java.util.ArrayList;

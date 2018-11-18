@@ -21,10 +21,10 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" scaleShape="false" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainProject.Controller">
+<VBox scaleShape="false" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainProject.Controller">
   <children>
-      <HBox prefHeight="100.0" prefWidth="200.0" />
-    <MenuBar prefHeight="62.0" prefWidth="851.0" VBox.vgrow="NEVER">
+      <HBox />
+    <MenuBar VBox.vgrow="NEVER">
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
@@ -58,28 +58,24 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" minHeight="720.0" minWidth="842.0" prefHeight="639.0" prefWidth="687.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" VBox.vgrow="ALWAYS">
       <children>
-        <Label alignment="CENTER" layoutX="155.0" layoutY="177.0" style="&#10;">
-          <font>
-            <Font size="18.0" />
-          </font>
-        </Label>
             <BorderPane pickOnBounds="false">
                <bottom>
-                  <HBox prefHeight="31.0" prefWidth="842.0" BorderPane.alignment="CENTER">
+                  <HBox BorderPane.alignment="CENTER">
                      <children>
                         <Button fx:id="btnPrevious" mnemonicParsing="false" onAction="#handlePreviousButtonAction" prefHeight="30.0" prefWidth="150.0" text="Previous" />
                         <Button fx:id="btnRandom" mnemonicParsing="false" onAction="#handleRandomButtonAction" prefHeight="30.0" prefWidth="150.0" text="Random" />
                         <Button fx:id="btnNext" mnemonicParsing="false" onAction="#handleNextButtonAction" prefHeight="30.0" prefWidth="100.0" text="Next" />
                         <ComboBox fx:id="comboBoxPokemon" prefHeight="30.0" prefWidth="150.0" promptText="Pokemon" />
+                        <ComboBox fx:id="comboBoxForms" prefWidth="150.0" promptText="Alternate Forms" />
                      </children>
                   </HBox>
                </bottom>
                <center>
-                  <ScrollPane fx:id="scrollPaneMain" fitToHeight="true" fitToWidth="true" prefHeight="689.0" prefWidth="842.0" BorderPane.alignment="CENTER">
+                  <ScrollPane fx:id="scrollPaneMain" fitToHeight="true" fitToWidth="true" pannable="true" prefHeight="880.0" prefWidth="1500.0" BorderPane.alignment="CENTER">
                      <content>
-                        <VBox fx:id="vBoxMain" prefHeight="200.0" prefWidth="843.0">
+                        <VBox fx:id="vBoxMain">
                            <children>
                               <HBox fx:id="hBoxFirst">
                                  <children>
@@ -93,7 +89,7 @@
                                           <Image url="@../../../../../Pokemon%202018%20Test%20Files/sprites/pokemon/shiny/249.png" />
                                        </image>
                                     </ImageView>
-                                    <GridPane prefHeight="200.0" prefWidth="447.0">
+                                    <GridPane>
                                       <columnConstraints>
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="161.0" minWidth="10.0" prefWidth="161.0" />
                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="148.5" minWidth="10.0" prefWidth="139.0" />
@@ -150,11 +146,11 @@
                                  </children>
                               </HBox>
                               <VBox fx:id="VBoxAbilities" />
-                              <GridPane fx:id="gridPaneBST" minHeight="180.0" prefHeight="102.0">
+                              <GridPane fx:id="gridPaneBST" minHeight="180.0">
                                 <columnConstraints>
-                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="60.0" prefWidth="245.0" />
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="176.0" />
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="208.5" minWidth="10.0" prefWidth="208.5" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="50.0" minWidth="23.0" prefWidth="25.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="239.0" minWidth="10.0" prefWidth="207.0" />
                                 </columnConstraints>
                                 <rowConstraints>
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -165,34 +161,34 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" text="HP" textAlignment="RIGHT">
+                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" prefWidth="85.0" text="HP" textAlignment="RIGHT">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" text="Attack" GridPane.rowIndex="1">
+                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" prefWidth="85.0" text="Attack" GridPane.rowIndex="1">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" text="Defense" GridPane.rowIndex="2">
+                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" prefWidth="85.0" text="Defense" GridPane.rowIndex="2">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" text="Sp. Att." GridPane.rowIndex="3">
+                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" prefWidth="85.0" text="Sp. Att." GridPane.rowIndex="3">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" text="Sp. Def." GridPane.rowIndex="4">
+                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" prefWidth="85.0" text="Sp. Def." GridPane.rowIndex="4">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" text="Speed" GridPane.rowIndex="5">
+                                    <Label alignment="CENTER_RIGHT" minHeight="25.0" minWidth="50.0" prefWidth="85.0" text="Speed" GridPane.rowIndex="5">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
                                     <Rectangle fx:id="rectHP" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="25.0" stroke="BLACK" strokeType="INSIDE" width="152.0" GridPane.columnIndex="2" />
@@ -201,34 +197,34 @@
                                     <Rectangle fx:id="rectSpAtt" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="25.0" stroke="BLACK" strokeType="INSIDE" width="208.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                                     <Rectangle fx:id="rectSpDef" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="25.0" stroke="BLACK" strokeType="INSIDE" width="142.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                                     <Rectangle fx:id="rectSpeed" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="25.0" stroke="BLACK" strokeType="INSIDE" width="216.0" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                                    <Label fx:id="lblBaseHP" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0" text="76" textAlignment="CENTER" GridPane.columnIndex="1">
+                                    <Label fx:id="lblBaseHP" minHeight="25.0" minWidth="40.0" prefHeight="25.0" prefWidth="40.0" text="76" textAlignment="CENTER" GridPane.columnIndex="1">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label fx:id="lblBaseAttack" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0" text="104" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label fx:id="lblBaseAttack" minHeight="25.0" minWidth="40.0" prefHeight="25.0" prefWidth="40.0" text="104" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label fx:id="lblBaseDefense" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0" text="71" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Label fx:id="lblBaseDefense" minHeight="25.0" minWidth="40.0" prefHeight="25.0" prefWidth="40.0" text="71" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label fx:id="lblBaseSpecialAttack" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0" text="104" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <Label fx:id="lblBaseSpecialAttack" minHeight="25.0" minWidth="40.0" prefHeight="25.0" prefWidth="40.0" text="104" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label fx:id="lblBaseSpecialDefense" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0" text="71" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                    <Label fx:id="lblBaseSpecialDefense" minHeight="25.0" minWidth="40.0" prefHeight="25.0" prefWidth="40.0" text="71" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label fx:id="lblBaseSpeed" alignment="CENTER_RIGHT" minHeight="25.0" minWidth="25.0" prefHeight="25.0" prefWidth="25.0" text="76" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <Label fx:id="lblBaseSpeed" minHeight="25.0" minWidth="40.0" prefHeight="25.0" prefWidth="40.0" text="76" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font size="20.0" />
                                        </font>
                                     </Label>
                                  </children>
@@ -236,22 +232,23 @@
                                     <Insets bottom="20.0" top="20.0" />
                                  </padding>
                               </GridPane>
-                              <VBox fx:id="vBoxMovesLevelUp" prefHeight="18.0" prefWidth="840.0">
+                              <VBox fx:id="vBoxEvolution" prefHeight="18.0" />
+                              <VBox fx:id="vBoxMovesLevelUp" prefHeight="18.0">
                                  <padding>
                                     <Insets bottom="10.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox fx:id="vBoxMovesTM" prefHeight="18.0" prefWidth="840.0">
+                              <VBox fx:id="vBoxMovesTM" prefHeight="18.0">
                                  <padding>
                                     <Insets bottom="10.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox fx:id="vBoxMovesEgg" prefHeight="18.0" prefWidth="840.0">
+                              <VBox fx:id="vBoxMovesEgg" prefHeight="18.0">
                                  <padding>
                                     <Insets bottom="10.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox fx:id="vBoxMovesMoveTutor" prefHeight="18.0" prefWidth="840.0">
+                              <VBox fx:id="vBoxMovesMoveTutor" prefHeight="18.0">
                                  <padding>
                                     <Insets bottom="10.0" top="10.0" />
                                  </padding>

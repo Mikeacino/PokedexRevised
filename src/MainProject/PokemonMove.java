@@ -16,12 +16,13 @@ public class PokemonMove{
   private String effectDescription;
 
   /**
-   * Make this an extended version, method - learned is pokemon specific, not move specific....
+   * The basic outline of a move. Currently mostly simple, but with some Capitalization and cleaning
+   * up some text
    * @param moveID - int - the id number for the move
    * @param moveIdentifier - String - the name of the move
    * @param type - String - the type of the move
    * @param methodLearned - String - how the pokemon learns this particular move
-   * @param levelLearned - int - what level the pokemon learns this move, if they learn it by level-up
+   * @param levelLearned - int - what level the pokemon learns this move, if they learn by level-up
    * @param power - int - base power of the move
    * @param pp - int - how many times the move can be used in a single battle
    * @param accuracy - int - the chance the move has to hit
@@ -31,16 +32,19 @@ public class PokemonMove{
    * @param effectChance - int - chance for the effect to occur
    * @param effectDescription - String - what the effect does
    */
-  PokemonMove(int moveID, String moveIdentifier, String type, String methodLearned, int levelLearned,
-      int power, int pp, int accuracy, int priority, String targetIdentifier, String damageClassDescription,
-      int effectChance, String effectDescription) {
+  PokemonMove(int moveID, String moveIdentifier, String type, String methodLearned,
+      int levelLearned, int power, int pp, int accuracy, int priority, String targetIdentifier,
+      String damageClassDescription, int effectChance, String effectDescription) {
     this.moveID = moveID;
     if (moveIdentifier.contains("-")){
-      this.moveIdentifier = moveIdentifier.substring(0, 1).toUpperCase() + moveIdentifier.substring(1,
-          moveIdentifier.indexOf('-')+1) + moveIdentifier.substring(moveIdentifier.indexOf('-')+1,
-          moveIdentifier.indexOf('-')+2).toUpperCase() + moveIdentifier.substring(moveIdentifier.indexOf('-') + 2);
+      this.moveIdentifier = moveIdentifier.substring(0, 1).toUpperCase() +                    //Just capitalizing words
+          moveIdentifier.substring(1, moveIdentifier.indexOf('-')+1) +
+          moveIdentifier.substring(moveIdentifier.indexOf('-')+1,
+              moveIdentifier.indexOf('-')+2).toUpperCase() +
+          moveIdentifier.substring(moveIdentifier.indexOf('-') + 2);
     }else {
-      this.moveIdentifier = (moveIdentifier.substring(0, 1).toUpperCase() + moveIdentifier.substring(1));
+      this.moveIdentifier = (moveIdentifier.substring(0, 1).toUpperCase() +                   //More Capitalizing
+          moveIdentifier.substring(1));
     }
     this.type = type;
     this.methodLearned = methodLearned;
@@ -52,8 +56,8 @@ public class PokemonMove{
     this.targetIdentifier = targetIdentifier;
     this.damageClassDescription = damageClassDescription;
     this.effectChance = effectChance;
-    //effectDescription can have variable areas
-    this.effectDescription = effectDescription.replace("$effect_chance", Integer.toString(effectChance));
+    this.effectDescription = effectDescription.replace("$effect_chance",                //The effect in the move description is not in the database, so i add it in here
+        Integer.toString(effectChance));
   }
 
   /**
