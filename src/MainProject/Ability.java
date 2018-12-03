@@ -3,7 +3,7 @@ package MainProject;
 public class Ability {
   private int abilityID;
   private String abilityName;
-  public String abilityDescription;
+  private String abilityDescription;
 
   /**
    * The basic outline of an ability. This needed to be a class to reduce queries. This class may be

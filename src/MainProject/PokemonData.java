@@ -3,7 +3,7 @@ package MainProject;
 import java.util.ArrayList;
 
 /**
- * PokemonEssentials class meant for use in a pokedex.
+ * PokemonData class meant for use in a pokedex.
  *  Pulls data from a relational database, and contains known data about pokemon. Contains no
  *  Getters as a result. Sometimes SpotBugs thinks this class is never used, but i create an
  *  instance of it in the first line of initialize() in Controller.Java

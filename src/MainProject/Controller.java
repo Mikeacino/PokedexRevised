@@ -1,7 +1,8 @@
 package MainProject;
 //I swear these are all needed somewhere or other
-import static MainProject.PokemonDatabaseWork.getAlternateFormsList;
-import static MainProject.PokemonDatabaseWork.getFullPokemonList;
+import static MainProject.PokemonDatabaseWork.getAlternateFormID;
+import static MainProject.PokemonDatabaseWork.getAlternateFormsListFromDB;
+import static MainProject.PokemonDatabaseWork.getFullPokemonListFromDB;
 import static MainProject.PokemonDatabaseWork.getSinglePokemonData;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,6 +13,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Random;
@@ -26,6 +28,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 public class Controller {
+  boolean firstIteration = true;
   private int currentPokemonID = 1;
   private int currentSpeciesID = 1;
 
@@ -99,6 +102,8 @@ public class Controller {
       /////////////////////////////// Moves Learned by Egg Breeding ///////////////////////////////
       @FXML
       private VBox vBoxMovesEgg;
+      @FXML
+      private HBox hBoxButtons;
   ///////////////////////////////////// Buttons /////////////////////////////////////
   @FXML
   private Button btnRandom;
@@ -109,9 +114,8 @@ public class Controller {
   @FXML
   private ComboBox<String> comboBoxPokemon;
   @FXML
-  private VBox vBoxEvolution;
-  @FXML
-  private ComboBox<String> comboBoxForms;
+  private Pane paneAlternateForms;
+
 
   /**
    * This is called when the fxml file is building the scene.
@@ -134,40 +138,43 @@ public class Controller {
     ArrayList<PokemonMove> dummyMoves = newPoke.getMoves();                                         //Moves
 
     ///////////////////////////////////// comboBoxPokemon /////////////////////////////////////
-    ArrayList<String> dummyPokemonList = getFullPokemonList();                                      //Creates a list of all pokemon species for ComboBox selection
-    ObservableList<String> dummyPokemonFullArrayList= FXCollections.observableArrayList(            //The list has to be an ObservableList
-        dummyPokemonList);
-    comboBoxPokemon.setItems(dummyPokemonFullArrayList);                                            //Set the comboBox to the list
-
-    ////////////////////// Full Pokemon List event, may be modularized later //////////////////////
+    if (firstIteration){
+      ArrayList<String> dummyPokemonList = getFullPokemonListFromDB();                              //Creates a list of all pokemon species for ComboBox selection
+      ObservableList<String> dummyPokemonFullArrayList= FXCollections.observableArrayList(            //The list has to be an ObservableList
+          dummyPokemonList);
+      comboBoxPokemon.setItems(dummyPokemonFullArrayList);                                            //Set the comboBox to the list
+    }
+    ////////////////////// Full Pokemon List event //////////////////////
     EventHandler<ActionEvent> pokemonCBevent =
         e -> {
-      System.out.println("The comboBox choice is: " + comboBoxPokemon.getValue().substring(         //Print statements for chasing down an error
-          0, comboBoxPokemon.getValue().indexOf(" ")));
-          currentPokemonID = Integer.parseInt(comboBoxPokemon.getValue().substring(                 //Sets the users ComboBox choice as the current pokemon
-              0, comboBoxPokemon.getValue().indexOf(" ")));
-          initialize();                                                                             //Re-Initializes the window with the new current Pokemon
+          if (comboBoxPokemon.getValue() != null) {
+            currentPokemonID = Integer.parseInt(comboBoxPokemon.getValue()
+                .substring(                 //Sets the users ComboBox choice as the current pokemon
+                    0, comboBoxPokemon.getValue().indexOf(" ")));
+            comboBoxPokemon.getSelectionModel().clearSelection();
+            initialize();                                                                           //Re-Initializes the window with the new current Pokemon
+          }
         };
-    // Set on action
     comboBoxPokemon.setOnAction(pokemonCBevent);                                                    //Add the event to be performed on action
 
     ///////////////////////////////////// ComboBoxForms /////////////////////////////////////
-    ArrayList<String> dummyFormList = getAlternateFormsList();                                      //List of alternate forms, currently bugged
-    ObservableList<String> dummyFormsArrayList= FXCollections.observableArrayList(dummyFormList);
-    comboBoxForms.setItems(null);                                                                   //How do i clear you!?!...Ahem, trying to clear the items from ComboBox, unsuccessful
-    comboBoxForms.setItems(dummyFormsArrayList);                                                    //Set the ComboBox to the list
-
-    //////////////////////// Create Alternate Forms event ////////////////////////                  //Currently bugged, disabled until bug is squashed
-    EventHandler<ActionEvent> event =
-        e -> {
-          //System.out.println(comboBoxForms.getValue());
-          currentPokemonID = 77; //getAlternateFormID(comboBoxForms.getValue());
-          //System.out.println(getAlternateFormID(comboBoxForms.getValue()));
-          initialize();
-        };
-    // Set on action
-    comboBoxForms.setOnAction(event);
-
+    ArrayList<String> dummyFormList = getAlternateFormsListFromDB(currentSpeciesID);                //List of alternate forms, currently bugged
+    paneAlternateForms.getChildren().clear();
+    if (dummyFormList.size() > 1) {                                                                 //Does this pokemon have an alternate form?
+      ComboBox comboBoxForms = new ComboBox();
+      ObservableList<String> dummyFormsArrayList = FXCollections.observableArrayList(dummyFormList);
+      comboBoxForms.setItems(dummyFormsArrayList);                                                  //Set the ComboBox to the list
+      comboBoxForms.getSelectionModel().selectFirst();
+      //////////////////// Create Alternate Forms event ////////////////////////
+      EventHandler<ActionEvent> event =
+          e -> {
+            String dummmy = (String) comboBoxForms.getValue();
+            currentPokemonID = getAlternateFormID(dummmy); //getAlternateFormID(comboBoxForms.getValue());
+            initialize();
+          };
+      comboBoxForms.setOnAction(event);
+      paneAlternateForms.getChildren().add(comboBoxForms);
+    }
     ///////////////////////////////////// Images /////////////////////////////////////
     Image imgNormal = new Image("File:///C://Users//chris//OneDrive//IntelliJ work (2018)//"    //Sprite for Normal Pokemon
         + "Programs//Pokedex 2.0//src//pokemon//" + pokemonID + ".png");
@@ -378,7 +385,7 @@ public class Controller {
     ///////////////////////////////////// Pokemon Data /////////////////////////////////////
     lblSpeciesName.setText(pokemonName.substring(0, 1).toUpperCase() +                        //Sets various labels
         pokemonName.substring(1));
-    lblSpeciesNumber.setText("#"+Integer.toString(pokemonID));
+    lblSpeciesNumber.setText("#"+Integer.toString(currentSpeciesID));
     lblHeight.setText(Double.toString(newPoke.getHeight()/10) + "m");
     lblWeight.setText(Double.toString(newPoke.getWeight()/10) + "kg");
 
@@ -418,11 +425,7 @@ public class Controller {
     } else{
       lblEggGroupTwo.setText("");
     }
-
-    ///////////////////////////////////// ComboBox Forms /////////////////////////////////////
-    comboBoxForms.setDisable(true);                                                                 //Slashing out the Alternate Forms box
-    System.out.println("The currentPokemonID is: " + currentPokemonID + "\nThe currentSpeciesID "   //Error testing statement
-        + "is: " + currentSpeciesID);
+    firstIteration = false;
   }
 
   /**

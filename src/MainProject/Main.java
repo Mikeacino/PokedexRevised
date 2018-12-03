@@ -7,13 +7,8 @@ package MainProject;
  * Known issues:
  *    Components in top right are scattered, needs to look nice
  *    UTF-8 needs to be in the database
- *    I need to be able to use a rowSet twice to modularize my database class
  *    ComboBox for forms isn't working
- *          rebuild the comboBox only if the pokemon has alternate forms
- *          buttons throw an error when accessing the alternate forms
- *          still won't switch properly
- *    Disabled the forms ComboBox until issues are resolved.
- *          maybe change the return type of form list and full pokemon list so i can save lines
+ *          some images aren't loading
  *    Rename image variable names
  *    Make PokemonMove an extended version, method-learned is pokemon specific, not move specific...
  */

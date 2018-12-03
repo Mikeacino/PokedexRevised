@@ -1,5 +1,6 @@
 package MainProject;
 
+import java.sql.Array;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,8 +9,6 @@ import javax.sql.rowset.JdbcRowSet;
 import javax.sql.rowset.RowSetProvider;
 
 public class PokemonDatabaseWork {
-  private static ArrayList<String> fullPokemonList = new ArrayList<>();                             //This is until i can successfully use a rowSet twice
-  private static ArrayList<String> alternateFormsList = new ArrayList<>();
   private static HashMap<String, Integer> alternateFormsMap = new HashMap<>();
   private static final String DATABASE_URL = "jdbc:derby:C:\\Apache\\db-derby-10.14.2.0-bin\\bin\\"
       + "PokemonDB";
@@ -53,24 +52,22 @@ public class PokemonDatabaseWork {
    */
   public static PokemonData getSinglePokemonData(int pokemonCurrentID) {
     PokemonData newPoke = null;                                                                     //The object PokemonData that will be returned full.
+    int pokemonID = 0;                                                                              //Empty arrays and lists, to be filled and passed into the PokemonData constructor
+    String speciesName = "";
+    int speciesID = 0;
+    double height = 0;
+    double weight = 0;
+    int[] baseStats = new int[6];
+    ArrayList<Ability> abilities = new ArrayList<>();
+    ArrayList<String> eggGroups = new ArrayList<>();
+    ArrayList<String> pokemonTypes = new ArrayList<>();
+    ArrayList<PokemonMove> moves = new ArrayList<>();
+
 
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
-      int pokemonID = 0;                                                                            //Empty arrays and lists, to be filled and passed into the PokemonData constructor
-      String speciesName = "";
-      int speciesID = 0;
-      double height = 0;
-      double weight = 0;
-      int[] baseStats = new int[6];
-      ArrayList<Ability> abilities = new ArrayList<>();
-      ArrayList<String> eggGroups = new ArrayList<>();
-      ArrayList<String> pokemonTypes = new ArrayList<>();
-      ArrayList<PokemonMove> moves = new ArrayList<>();
-
       ///////////////////////////////////// pokemon_data /////////////////////////////////////
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
-      String commandQuery;
-
-      commandQuery = "SELECT * FROM pokemon_data where pokemon_id = " + pokemonCurrentID;
+      String commandQuery = "SELECT * FROM pokemon_data where pokemon_id = " + pokemonCurrentID;
       rowSet.setCommand(commandQuery); // set query
       rowSet.execute(); // execute query
       rowSet.next();
@@ -82,16 +79,76 @@ public class PokemonDatabaseWork {
       height = rowSet.getDouble(4);
       weight = rowSet.getDouble(5);
 
+    } catch (SQLException sqlException) {
+      sqlException.printStackTrace();
+      System.exit(1);
+    }
+    ///////////////////////////////////// base_stats /////////////////////////////////////
+    baseStats = getBaseStatsFromDB(pokemonID);
 
-      ///////////////////////////////////// base_stats /////////////////////////////////////
+    ///////////////////////////////////// pokemon_egg_groups /////////////////////////////////////
+    eggGroups = getEggGroupsFromDB(speciesID);
+
+    ///////////////////////////////////// pokemon_types /////////////////////////////////////
+    pokemonTypes = getPokemonTypesFromDB(speciesID);
+
+    ///////////////////////////////////// pokemon_abilities /////////////////////////////////////
+    abilities = getAbilitiesFromDB(pokemonID);
+
+    ///////////////////////////////////// Pokemon Moves /////////////////////////////////////
+    moves = getMovesFromDB(speciesID);
+
+
+    newPoke = new PokemonData(pokemonID, speciesID, speciesName, height, weight, baseStats,
+        abilities, eggGroups, pokemonTypes, moves);
+
+    return newPoke;
+  }
+
+
+  static int[] getBaseStatsFromDB(int pokemonID){
+    int[] baseStats = new int[6];
+    try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
+      rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
       String statCommand = "SELECT * FROM BASE_STATS where POKEMON_ID = " + pokemonID;
       rowSet.setCommand(statCommand); // set query
       rowSet.execute(); // execute query
       while (rowSet.next()) {
         baseStats[rowSet.getInt(2) - 1] = rowSet.getInt(3);
       }
+    }catch (SQLException sqlException) {
+      sqlException.printStackTrace();
+      System.exit(1);
+    }
+    return baseStats;
+  }
 
-      ///////////////////////////////////// pokemon_egg_groups /////////////////////////////////////
+  static ArrayList<Ability> getAbilitiesFromDB(int pokemonID){
+    ArrayList<Ability> abilities = new ArrayList<>();                                               //Initialize dummy ArrayList
+    try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
+      rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
+      String abilityCommand = "SELECT * FROM pokemon_abilities "
+          + "JOIN ability_prose "
+          + "ON pokemon_abilities.ability_id = ability_prose.ability_id "
+          + "WHERE pokemon_id = " + pokemonID
+          + "ORDER BY pokemon_abilities.pokemon_id";                                                //Note to Self: Why order the abilities? order by slot, and pass HA value to ability object
+      rowSet.setCommand(abilityCommand); // set query
+      rowSet.execute(); // execute query
+      while (rowSet.next()) {
+        abilities.add(new Ability(rowSet.getInt(2), rowSet.getString(6), rowSet.getString
+            (7)));
+      }
+    }catch (SQLException sqlException) {
+      sqlException.printStackTrace();
+      System.exit(1);
+    }
+      return abilities;
+  }
+
+  static ArrayList<String> getEggGroupsFromDB(int speciesID){
+    ArrayList<String> eggGroups = new ArrayList<>();                                                //Initialize dummy ArrayList
+    try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
+      rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
       String eggCommand = "SELECT * FROM POKEMON_EGG_GROUPS "
           + "JOIN EGG_GROUPS "
           + "ON POKEMON_EGG_GROUPS.egg_group_id = EGG_GROUPS.egg_group_id "
@@ -102,8 +159,17 @@ public class PokemonDatabaseWork {
       while (rowSet.next()) {
         eggGroups.add(rowSet.getString(4));
       }
+    }catch (SQLException sqlException) {
+      sqlException.printStackTrace();
+      System.exit(1);
+    }
+    return eggGroups;
+  }
 
-      ///////////////////////////////////// pokemon_types /////////////////////////////////////
+  static ArrayList<String> getPokemonTypesFromDB(int speciesID){
+    ArrayList<String> pokemonTypes = new ArrayList<>();
+    try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
+      rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
       String typeCommand = "SELECT * FROM POKEMON_TYPES "
           + "JOIN TYPES "
           + "ON POKEMON_TYPES.type_id = TYPES.type_id "
@@ -114,44 +180,40 @@ public class PokemonDatabaseWork {
       while (rowSet.next()) {
         pokemonTypes.add(rowSet.getString(5));
       }
+    } catch (SQLException sqlException) {
+      sqlException.printStackTrace();
+      System.exit(1);
+    }
+    return pokemonTypes;
+  }
 
-      ///////////////////////////////////// pokemon_abilities /////////////////////////////////////
-      String abilityCommand = "SELECT * FROM pokemon_abilities "
-          + "JOIN ability_prose "
-          + "ON pokemon_abilities.ability_id = ability_prose.ability_id "
-          + "WHERE pokemon_id = " + speciesID
-          + "ORDER BY pokemon_abilities.pokemon_id";                                                //Note to Self: Why order the abilities? order by slot, and pass HA value to ability object
-      rowSet.setCommand(abilityCommand); // set query
-      rowSet.execute(); // execute query
-      while (rowSet.next()) {
-        abilities.add(new Ability(rowSet.getInt(2), rowSet.getString(6), rowSet.getString
-            (7)));
-      }
-
-      ///////////////////////////////////// Pokemon Moves /////////////////////////////////////
+  static ArrayList<PokemonMove> getMovesFromDB(int speciesID){
+    ArrayList<PokemonMove> moves = new ArrayList<>();
+    try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
+      rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
       String pokemonMoveCommand =
-            "SELECT POKEMON_MOVES.POKEMON_ID, MOVES.MOVE_ID, MOVES.MOVE_IDENTIFIER, "
-                + "TYPES.TYPE_IDENTIFIER, POKEMON_MOVE_METHOD.MOVE_METHOD_DESCRIPTION, "
-                + "POKEMON_MOVES.MOVE_LEVEL_LEARNED, MOVES.MOVE_POWER, MOVES.pp, MOVES.ACCURACY, "
-                + "MOVES.PRIORITY, MOVE_TARGETS.TARGET_IDENTIFIER, "
-                + "DAMAGE_CLASS.DAMAGE_CLASS_DESCRIPTION, MOVES.EFFECT_CHANCE, "
-                + "MOVE_EFFECT_PROSE.EFFECT_DESCRIPTION "
-          + "FROM POKEMON_MOVES "
-          + "JOIN MOVES "
-          + "    ON POKEMON_MOVES.move_id = MOVES.move_id "
-          + "JOIN TYPES "
-          + "    ON MOVES.TYPE_ID = TYPES.TYPE_ID "
-          + "JOIN POKEMON_MOVE_METHOD "
-          + "    ON POKEMON_MOVES.pokemon_move_method_id = "
-                + "POKEMON_MOVE_METHOD.pokemon_move_method_id "
-          + "JOIN DAMAGE_CLASS "
-          + "    ON MOVES.DAMAGE_CLASS_ID = DAMAGE_CLASS.DAMAGE_CLASS_ID "
-          + "JOIN MOVE_EFFECT_PROSE "
-          + "    ON MOVES.EFFECT_ID = MOVE_EFFECT_PROSE.EFFECT_ID "
-          + "JOIN MOVE_TARGETS "
-          + "    ON MOVE_TARGETS.TARGET_ID = MOVES.TARGET_ID "
-          + "WHERE pokemon_id = " + speciesID
-          + "ORDER BY pokemon_id";
+          "SELECT POKEMON_MOVES.POKEMON_ID, MOVES.MOVE_ID, MOVES.MOVE_IDENTIFIER, "
+              + "TYPES.TYPE_IDENTIFIER, POKEMON_MOVE_METHOD.MOVE_METHOD_DESCRIPTION, "
+              + "POKEMON_MOVES.MOVE_LEVEL_LEARNED, MOVES.MOVE_POWER, MOVES.pp, MOVES.ACCURACY, "
+              + "MOVES.PRIORITY, MOVE_TARGETS.TARGET_IDENTIFIER, "
+              + "DAMAGE_CLASS.DAMAGE_CLASS_DESCRIPTION, MOVES.EFFECT_CHANCE, "
+              + "MOVE_EFFECT_PROSE.EFFECT_DESCRIPTION "
+              + "FROM POKEMON_MOVES "
+              + "JOIN MOVES "
+              + "    ON POKEMON_MOVES.move_id = MOVES.move_id "
+              + "JOIN TYPES "
+              + "    ON MOVES.TYPE_ID = TYPES.TYPE_ID "
+              + "JOIN POKEMON_MOVE_METHOD "
+              + "    ON POKEMON_MOVES.pokemon_move_method_id = "
+              + "POKEMON_MOVE_METHOD.pokemon_move_method_id "
+              + "JOIN DAMAGE_CLASS "
+              + "    ON MOVES.DAMAGE_CLASS_ID = DAMAGE_CLASS.DAMAGE_CLASS_ID "
+              + "JOIN MOVE_EFFECT_PROSE "
+              + "    ON MOVES.EFFECT_ID = MOVE_EFFECT_PROSE.EFFECT_ID "
+              + "JOIN MOVE_TARGETS "
+              + "    ON MOVE_TARGETS.TARGET_ID = MOVES.TARGET_ID "
+              + "WHERE pokemon_id = " + speciesID
+              + "ORDER BY pokemon_id";
 
       rowSet.setCommand(pokemonMoveCommand); // set query
       rowSet.execute(); // execute query
@@ -162,14 +224,22 @@ public class PokemonDatabaseWork {
             rowSet.getString(11), rowSet.getString(12), rowSet.getInt(13),
             rowSet.getString(14)));
       }
+    } catch (SQLException sqlException) {
+      sqlException.printStackTrace();
+      System.exit(1);
+    }
+      return moves;
+  }
 
-      newPoke = new PokemonData(pokemonID, speciesID, speciesName, height, weight, baseStats,
-          abilities, eggGroups, pokemonTypes, moves);
-      //// This section is for other queries, but can't be moves until i can use a rowSet twice ////
+
+  public static ArrayList<String> getFullPokemonListFromDB(){
+    ArrayList<String> fullPokemonList = new ArrayList<>();
+    try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
+      rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
       String fullPokeListCommand = "SELECT POKEMON_DATA.POKEMON_ID, "
           + "POKEMON_DATA.POKEMON_IDENTIFIER " +
-      "FROM POKEMON_DATA " +
-      "WHERE IS_DEFAULT = 1";
+          "FROM POKEMON_DATA " +
+          "WHERE IS_DEFAULT = 1";
       rowSet.setCommand(fullPokeListCommand); // set query
       rowSet.execute(); // execute query
 
@@ -177,8 +247,16 @@ public class PokemonDatabaseWork {
         fullPokemonList.add(rowSet.getInt(1) + " " + rowSet.getString(2).substring(
             0,1).toUpperCase() + rowSet.getString(2).substring(1));
       }
-
-      //////////////////////////////////// Pokemon Forms Array ////////////////////////////////////
+    } catch (SQLException sqlException) {
+      sqlException.printStackTrace();
+      System.exit(1);
+    }
+    return fullPokemonList;
+  }
+  public static ArrayList<String> getAlternateFormsListFromDB(int speciesID){
+    ArrayList<String> alternateFormsList = new ArrayList<>();
+    try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
+      rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
       String alternateFormsCommand = "SELECT * "
           + "FROM POKEMON_DATA "
           + "where SPECIES_ID = " + speciesID;
@@ -189,18 +267,10 @@ public class PokemonDatabaseWork {
         alternateFormsList.add(rowSet.getString(2));
         alternateFormsMap.put(rowSet.getString(2), rowSet.getInt(1));
       }
-
     } catch (SQLException sqlException) {
       sqlException.printStackTrace();
       System.exit(1);
     }
-    return newPoke;
-  }
-
-  public static ArrayList<String> getFullPokemonList(){
-    return fullPokemonList;
-  }
-  public static ArrayList<String> getAlternateFormsList(){
     return alternateFormsList;
   }
   public static int getAlternateFormID(String name){
