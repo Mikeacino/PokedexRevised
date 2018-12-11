@@ -1,6 +1,5 @@
 package MainProject;
 
-import java.sql.Array;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,12 +9,14 @@ import javax.sql.rowset.RowSetProvider;
 
 public class PokemonDatabaseWork {
   private static HashMap<String, Integer> alternateFormsMap = new HashMap<>();
-  private static final String DATABASE_URL = "jdbc:derby:C:\\Apache\\db-derby-10.14.2.0-bin\\bin\\"
+  private static final String DATABASE_URL = "jdbc:derby:C:\\Apache\\db-derby-10.14.2.0-bin\\bin\\" //
       + "PokemonDB";
 
   /**
-   * Prints all data in the rowSet passed to the method.
-   * Will often cause an error after use, but after printing the table.
+   * Unused method for Debugging.
+   * Loops through rowSet and prints out all of the rowSet's columns and rows.
+   * Will cause errors when used.
+   *
    * @param rowBoat - the rowSet to be printed.
    */
   public static void printFullRowSet(JdbcRowSet rowBoat){
@@ -44,24 +45,24 @@ public class PokemonDatabaseWork {
   }                                       //Prints the table, but will cause an error afterward.
 
   /**
-   * This static method is used to get a PokemonEssentials object with all related data from only
-   * the id or species name. This does not include things like flavor text or ability descriptions.
+   * Takes the pokemon ID in as a parameter and returns a filled PokemonData.
+   * This method is built to accommodate the alternate forms of Pokemon.
    *
    * @param pokemonCurrentID the pokemon's id number
    * @return returns a pokemon with all fields filled.
    */
-  public static PokemonData getSinglePokemonData(int pokemonCurrentID) {
+  static PokemonData getSinglePokemonData(int pokemonCurrentID) {
     PokemonData newPoke = null;                                                                     //The object PokemonData that will be returned full.
     int pokemonID = 0;                                                                              //Empty arrays and lists, to be filled and passed into the PokemonData constructor
     String speciesName = "";
     int speciesID = 0;
     double height = 0;
     double weight = 0;
-    int[] baseStats = new int[6];
-    ArrayList<Ability> abilities = new ArrayList<>();
-    ArrayList<String> eggGroups = new ArrayList<>();
-    ArrayList<String> pokemonTypes = new ArrayList<>();
-    ArrayList<PokemonMove> moves = new ArrayList<>();
+    int[] baseStats;
+    ArrayList<Ability> abilities;
+    ArrayList<String> eggGroups;
+    ArrayList<String> pokemonTypes;
+    ArrayList<PokemonMove> moves;
 
 
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
@@ -105,8 +106,7 @@ public class PokemonDatabaseWork {
     return newPoke;
   }
 
-
-  static int[] getBaseStatsFromDB(int pokemonID){
+  private static int[] getBaseStatsFromDB(int pokemonID){
     int[] baseStats = new int[6];
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
@@ -123,7 +123,7 @@ public class PokemonDatabaseWork {
     return baseStats;
   }
 
-  static ArrayList<Ability> getAbilitiesFromDB(int pokemonID){
+  private static ArrayList<Ability> getAbilitiesFromDB(int pokemonID){
     ArrayList<Ability> abilities = new ArrayList<>();                                               //Initialize dummy ArrayList
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
@@ -145,7 +145,7 @@ public class PokemonDatabaseWork {
       return abilities;
   }
 
-  static ArrayList<String> getEggGroupsFromDB(int speciesID){
+  private static ArrayList<String> getEggGroupsFromDB(int speciesID){
     ArrayList<String> eggGroups = new ArrayList<>();                                                //Initialize dummy ArrayList
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
@@ -166,7 +166,7 @@ public class PokemonDatabaseWork {
     return eggGroups;
   }
 
-  static ArrayList<String> getPokemonTypesFromDB(int speciesID){
+  private static ArrayList<String> getPokemonTypesFromDB(int speciesID){
     ArrayList<String> pokemonTypes = new ArrayList<>();
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
@@ -187,7 +187,7 @@ public class PokemonDatabaseWork {
     return pokemonTypes;
   }
 
-  static ArrayList<PokemonMove> getMovesFromDB(int speciesID){
+  private static ArrayList<PokemonMove> getMovesFromDB(int speciesID){
     ArrayList<PokemonMove> moves = new ArrayList<>();
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
@@ -231,8 +231,7 @@ public class PokemonDatabaseWork {
       return moves;
   }
 
-
-  public static ArrayList<String> getFullPokemonListFromDB(){
+  static ArrayList<String> getFullPokemonListFromDB(){
     ArrayList<String> fullPokemonList = new ArrayList<>();
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
@@ -253,7 +252,8 @@ public class PokemonDatabaseWork {
     }
     return fullPokemonList;
   }
-  public static ArrayList<String> getAlternateFormsListFromDB(int speciesID){
+
+  static ArrayList<String> getAlternateFormsListFromDB(int speciesID){
     ArrayList<String> alternateFormsList = new ArrayList<>();
     try (JdbcRowSet rowSet = RowSetProvider.newFactory().createJdbcRowSet()) {
       rowSet.setUrl(DATABASE_URL);                                                                  //Path to PokemonDB database
@@ -263,8 +263,8 @@ public class PokemonDatabaseWork {
       rowSet.setCommand(alternateFormsCommand); // set query
       rowSet.execute(); // execute query
 
-      while (rowSet.next()) {               //what to do if the pokemon is default or not.
-        alternateFormsList.add(rowSet.getString(2));
+      while (rowSet.next()) {               //what to do if the pokemon is default or not.ist
+        alternateFormsList.add(rowSet.getString(2));                                              //change to observable l
         alternateFormsMap.put(rowSet.getString(2), rowSet.getInt(1));
       }
     } catch (SQLException sqlException) {
@@ -273,7 +273,8 @@ public class PokemonDatabaseWork {
     }
     return alternateFormsList;
   }
-  public static int getAlternateFormID(String name){
+
+  static int getAlternateFormID(String name){
     return alternateFormsMap.get(name);
   }
 }

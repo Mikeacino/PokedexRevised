@@ -29,5 +29,16 @@ public class Main extends Application {
         primaryStage.setTitle("Pokedex 2.0");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+
     }
 }
+/**
+ * Comments for GUI database project.
+ *   In order to connect to a database using JdbcRowSet, you must first establish a URL link.
+ *   I used a constant URL to link to my database, then connected to it using the setURL() method
+ *   for rowsets. Next I used the setCommand() method to pass a String of SQL code into the rowset,
+ *   waiting to be executed. Next I used the execute() method to actually execute the query on the
+ *   database. This step often threw an error when there was an error in the SQL code. after that
+ *   the connection is made, and the results of the query can be read freely. The only caveat is
+ *   that the rowSet needs the next() method called to place the cursor onto the first line.
+ */

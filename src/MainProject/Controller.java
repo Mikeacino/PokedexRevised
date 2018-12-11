@@ -28,7 +28,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 public class Controller {
-  boolean firstIteration = true;
+  private boolean firstIteration = true;
   private int currentPokemonID = 1;
   private int currentSpeciesID = 1;
 
@@ -169,7 +169,7 @@ public class Controller {
       EventHandler<ActionEvent> event =
           e -> {
             String dummmy = (String) comboBoxForms.getValue();
-            currentPokemonID = getAlternateFormID(dummmy); //getAlternateFormID(comboBoxForms.getValue());
+            currentPokemonID = getAlternateFormID(dummmy);
             initialize();
           };
       comboBoxForms.setOnAction(event);

@@ -14,7 +14,7 @@ public class PokemonData implements PokemonEssentials, PokemonDescription {
   private int speciesID;
   private double height;
   private double weight;
-  private int[] baseStats = new int[6];                                                             //I have no idea how to solve this. I've tried every variation of int Arrays that I know
+  private int[] baseStats;                                                             //I have no idea how to solve this. I've tried every variation of int Arrays that I know
   private ArrayList<Ability> abilities;
   private ArrayList<String> eggGroups;
   private ArrayList<String> types;
@@ -65,7 +65,7 @@ public class PokemonData implements PokemonEssentials, PokemonDescription {
   }
 
   public int[] getBaseStats() {
-    return baseStats;
+    return baseStats;                                                                               //This line throws an error because baseStats throws an error. Not sure why yet.
   }
 
   public ArrayList<Ability> getAbilities() {

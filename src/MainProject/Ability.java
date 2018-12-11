@@ -13,7 +13,7 @@ public class Ability {
    * @param abilityDescription - String - a description of the ability
    */
   Ability(int abilityID, String abilityName, String abilityDescription){
-    this.abilityID = abilityID;   //currently unused, but will be useful in the future for sorting
+    //this.abilityID = abilityID;   //currently unused, but will be useful in the future for sorting
     this.abilityName = abilityName;
     this.abilityDescription = abilityDescription;
   }
