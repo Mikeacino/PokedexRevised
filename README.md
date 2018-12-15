@@ -4,7 +4,7 @@ A Pokédex is an encyclopedia of the creatures in the Pokémon series of games a
 
 
 Author:
- 	Michael Carracino
+	Michael Carracino
 
 
 Project Goal:
